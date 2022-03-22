@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour
 {
@@ -10,9 +11,15 @@ public class PlayerController : MonoBehaviour
     public Text winText;
 
     private Rigidbody rb;
+
     private int count;
 
-    public GameObject target;
+    private float distancia;
+
+    private GameObject target;
+    private GameObject player;
+    private GameObject test_target;
+    private string new_target;
 
     void Start()
     {
@@ -20,17 +27,40 @@ public class PlayerController : MonoBehaviour
         count = 0;
         SetCountText();
         winText.text = "";
-        target = GameObject.Find("PickUp");
     }
-    
-    void FixedUpdate()
+
+    void Update()
     {
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
+        CalculaMinimo();
+    }
 
-        Vector3 movement = new Vector3(moveHorizontal, 0.0f, moveVertical);
+    void CalculaMinimo()
+    {
+        float distanceToClosestPickUp = Mathf.Infinity;
+        GameObject closestPickup = null;
+        GameObject[] alltargets = GameObject.FindGameObjectsWithTag("Pick Up");
 
-        rb.AddForce(movement * speed);
+        foreach (GameObject currentPickup in alltargets)
+        {
+            if (currentPickup.activeInHierarchy)
+            {
+                float distanceToPickup = (currentPickup.transform.position - this.transform.position).sqrMagnitude;
+                if (distanceToPickup < distanceToClosestPickUp)
+                {
+                    distanceToClosestPickUp = distanceToPickup;
+                    closestPickup = currentPickup;
+                }
+            }
+        }
+
+        Debug.DrawLine(this.transform.position, closestPickup.transform.position);
+
+        var lookPos = closestPickup.transform.position - this.transform.position;
+        lookPos.y = 0;
+        var rotation = Quaternion.LookRotation(lookPos);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, rotation, 2);
+
+        transform.Translate(Vector3.forward * 5 * Time.deltaTime);
     }
 
     void OnTriggerEnter(Collider other)
