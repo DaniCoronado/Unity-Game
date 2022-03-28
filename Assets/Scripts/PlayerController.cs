@@ -8,11 +8,15 @@ public class PlayerController : MonoBehaviour
 
     public float speed;
     public Text countText;
+
     public Text winText;
+    public Text vidasText;
+    public int vidas;
 
     private Rigidbody rb;
 
     private int count;
+
 
     private float distancia;
 
@@ -25,7 +29,9 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         count = 0;
+        vidas = 5;
         SetCountText();
+        setVidas();
         winText.text = "";
     }
 
@@ -71,6 +77,12 @@ public class PlayerController : MonoBehaviour
             count = count + 1;
             SetCountText();
         }
+        if (other.gameObject.CompareTag("Minion"))
+        {
+            other.gameObject.SetActive(false);
+            vidas = vidas - 1;
+            setVidas();
+        }
     }
 
     void SetCountText()
@@ -81,4 +93,16 @@ public class PlayerController : MonoBehaviour
             winText.text = "You Win!";
         }
     }
+    
+    void setVidas()
+    {
+        vidasText.text = "Vidas: " + vidas.ToString();
+        if (vidas <= 0)
+        {
+
+            winText.text = "you lose!";
+        }
+    }
+
+
 }
